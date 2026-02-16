@@ -1,42 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<!-- ESSENCIAL para embed no Notion -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
+
+<title>Web3 Market Terminal</title>
+
+<style>
+body{
+margin:0;
+background:#020617;
+font-family:Arial, sans-serif;
+color:#00eaff;
+}
+
+.container{
+padding:15px;
+max-width:500px;
+margin:auto;
+}
+
+.title{
+text-align:center;
+font-size:20px;
+margin-bottom:15px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+background:#0f172a;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+}
+
+.price{
+font-weight:bold;
+}
+
+.loading{
+text-align:center;
+opacity:0.6;
+font-size:12px;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">⚡ Web3 Market Terminal</div>
+
+<div class="row"><span>BTC</span><span id="btc" class="price">loading</span></div>
+<div class="row"><span>ETH</span><span id="eth" class="price">loading</span></div>
+<div class="row"><span>GODS</span><span id="gods" class="price">loading</span></div>
+<div class="row"><span>RONIN</span><span id="ronin" class="price">loading</span></div>
+<div class="row"><span>IMX</span><span id="imx" class="price">loading</span></div>
+<div class="row"><span>HXD</span><span id="hxd" class="price">N/A</span></div>
+<div class="row"><span>SOL</span><span id="sol" class="price">loading</span></div>
+
+<div class="loading">Atualiza a cada 60s</div>
+
+</div>
+
 <script>
 
-const tokens = {
-bitcoin: "btc",
-ethereum: "eth",
-"gods-unchained": "gods",
-ronin: "ronin",
-"immutable-x": "imx",
-solana: "sol"
-}
+async function updatePrices(){
 
-// HXD pode não existir na CoinGecko → tratado separado
+const url="https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,gods-unchained,ronin,immutable-x,solana&vs_currencies=usd"
 
-async function fetchPrices(){
 try{
 
-const ids = Object.keys(tokens).join(",")
+const res=await fetch(url,{cache:"no-store"})
+const data=await res.json()
 
-const res = await fetch(
-`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
-)
-
-const data = await res.json()
-
-for(const coin in tokens){
-const el = document.querySelector(`#${tokens[coin]} .price`)
-if(data[coin]) el.innerText = "$" + data[coin].usd
-else el.innerText = "N/A"
+function set(id,value){
+const el=document.getElementById(id)
+if(!el) return
+el.textContent=value?("$"+value.toLocaleString()):"N/A"
 }
 
-// Honeyland manual placeholder
-document.querySelector("#hxd .price").innerText = "Check"
+set("btc",data.bitcoin?.usd)
+set("eth",data.ethereum?.usd)
+set("gods",data["gods-unchained"]?.usd)
+set("ronin",data.ronin?.usd)
+set("imx",data["immutable-x"]?.usd)
+set("sol",data.solana?.usd)
+
+// Honeyland não existe consistentemente na API
+document.getElementById("hxd").textContent="Check"
 
 }catch(e){
-console.log(e)
+
+// fallback se API falhar
+["btc","eth","gods","ronin","imx","sol"].forEach(id=>{
+document.getElementById(id).textContent="Error"
+})
+
 }
 }
 
-fetchPrices()
-setInterval(fetchPrices, 60000)
+// renderização forçada (evita bug iframe Notion)
+window.onload=()=>{
+updatePrices()
+setInterval(updatePrices,60000)
+}
 
 </script>
+
+</body>
+</html>
