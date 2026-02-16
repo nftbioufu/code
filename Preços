@@ -1,0 +1,2 @@
+<script src="https://widgets.coingecko.com/gecko-coin-list-widget.js"></script>
+<gecko-coin-list-widget locale="en" dark-mode="true" outlined="true" coin-ids="bitcoin,gods-unchained,immutable-x,ronin,honeyland-honey,solana,ethereum" initial-currency="usd"></gecko-coin-list-widget>
