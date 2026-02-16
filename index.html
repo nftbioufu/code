@@ -1,80 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Web3 Token Prices</title>
-
-<style>
-body{
-background:#020617;
-color:#00eaff;
-font-family:Arial, sans-serif;
-padding:20px;
-}
-
-.container{
-max-width:400px;
-margin:auto;
-}
-
-.card{
-background:#0f172a;
-border-radius:12px;
-padding:15px;
-margin:10px 0;
-box-shadow:0 0 15px rgba(0,234,255,0.2);
-display:flex;
-justify-content:space-between;
-}
-
-.price{
-font-weight:bold;
-}
-
-.title{
-text-align:center;
-margin-bottom:20px;
-font-size:22px;
-}
-
-.refresh{
-text-align:center;
-margin-top:10px;
-font-size:12px;
-opacity:0.7;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="title">⚡ Web3 Market Terminal</div>
-
-<div id="btc" class="card"><span>BTC</span><span class="price">...</span></div>
-<div id="eth" class="card"><span>ETH</span><span class="price">...</span></div>
-<div id="gods" class="card"><span>GODS</span><span class="price">...</span></div>
-<div id="ronin" class="card"><span>RON</span><span class="price">...</span></div>
-<div id="imx" class="card"><span>IMX</span><span class="price">...</span></div>
-<div id="hxd" class="card"><span>HXD</span><span class="price">...</span></div>
-<div id="sol" class="card"><span>SOL</span><span class="price">...</span></div>
-
-<div class="refresh">Atualiza automaticamente a cada 60s</div>
-
-</div>
-
 <script>
 
 const tokens = {
 bitcoin: "btc",
 ethereum: "eth",
-gods-unchained: "gods",
+"gods-unchained": "gods",
 ronin: "ronin",
-immutable-x: "imx",
-honeyland: "hxd",
+"immutable-x": "imx",
 solana: "sol"
 }
+
+// HXD pode não existir na CoinGecko → tratado separado
 
 async function fetchPrices(){
 try{
@@ -88,23 +23,20 @@ const res = await fetch(
 const data = await res.json()
 
 for(const coin in tokens){
-const element = document.querySelector(`#${tokens[coin]} .price`)
-if(data[coin]){
-element.innerText = "$" + data[coin].usd.toLocaleString()
-}
+const el = document.querySelector(`#${tokens[coin]} .price`)
+if(data[coin]) el.innerText = "$" + data[coin].usd
+else el.innerText = "N/A"
 }
 
+// Honeyland manual placeholder
+document.querySelector("#hxd .price").innerText = "Check"
+
 }catch(e){
-console.log("Erro ao buscar preços", e)
+console.log(e)
 }
 }
 
 fetchPrices()
-
-// atualiza a cada 60 segundos
 setInterval(fetchPrices, 60000)
 
 </script>
-
-</body>
-</html>
